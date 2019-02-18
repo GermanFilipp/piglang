@@ -27,24 +27,22 @@ func Encrypt(stdin string) string {
 
 // EncryptSingleWord one english words into the PigLatin equlivent
 func EncryptSingleWord(str string) string {
-	first := rune(str[0])
+	firstByte := str[0]
 	str = strings.ToLower(str)
 	if !IsConsonant(str[0:1]) {
 		return str + nonConsonantSuffix
 	}
-	strArr := strings.Split(str, "")
 
-	for i := 0; i <= len(strArr) && IsConsonant(strArr[0]); i++ {
+	for i := 0; i <= len(str) && IsConsonant(str[0:1]); i++ {
 		var tmpChar string
-		tmpChar, strArr = strArr[0], strArr[1:]
-		strArr = append(strArr, tmpChar)
+		tmpChar, str = str[0:1], str[1:]
+		str = str + tmpChar
 	}
-	result := strings.Join(strArr, "") + suffix
 
-	if unicode.IsUpper(first) {
-		result = strings.Title(result)
+	if unicode.IsUpper(rune(firstByte)) {
+		str = strings.Title(str)
 	}
-	return result
+	return str + suffix
 }
 
 //IsConsonant return true if letter consonant
