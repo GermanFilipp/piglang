@@ -6,12 +6,16 @@ import (
 	"unicode"
 )
 
-const suffix string = "ay"
-const vowel string = "aeiou"
-const nonConsonantSuffix string = "way"
+const (
+	vowel              string = "aeiou"
+	suffix             string = "ay"
+	nonConsonantSuffix string = "way"
+)
 
-var reg = regexp.MustCompile(`[A-Za-z']+|[^A-Za-z]`)
-var onlyLattinReg = regexp.MustCompile(`[A-Za-z']`)
+var (
+	reg           = regexp.MustCompile(`[A-Za-z']+|[^A-Za-z]`)
+	onlyLattinReg = regexp.MustCompile(`[A-Za-z']`)
+)
 
 // Encrypt translates one or more english words into the PigLatin equlivent
 func Encrypt(stdin string) string {
