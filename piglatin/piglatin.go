@@ -18,22 +18,24 @@ func Encrypt(stdin string) string {
 	var encryptedWords []string
 	for _, word := range reg.FindAllString(stdin, -1) {
 		if onlyLattinReg.MatchString(word) {
-			word = EncryptSingleWord(word)
+			word = encryptSingleWord(word)
 		}
 		encryptedWords = append(encryptedWords, word)
 	}
 	return strings.Join(encryptedWords, "")
 }
 
-// EncryptSingleWord one english words into the PigLatin equlivent
-func EncryptSingleWord(str string) string {
+//// private
+
+// encryptSingleWord one english words into the PigLatin equlivent
+func encryptSingleWord(str string) string {
 	firstByte := str[0]
 	str = strings.ToLower(str)
-	if !IsConsonant(str[0:1]) {
+	if !isConsonant(str[0:1]) {
 		return str + nonConsonantSuffix
 	}
 
-	for i := 0; i <= len(str) && IsConsonant(str[0:1]); i++ {
+	for i := 0; i <= len(str) && isConsonant(str[0:1]); i++ {
 		var tmpChar string
 		tmpChar, str = str[0:1], str[1:]
 		str = str + tmpChar
@@ -45,7 +47,7 @@ func EncryptSingleWord(str string) string {
 	return str + suffix
 }
 
-//IsConsonant return true if letter consonant
-func IsConsonant(char string) bool {
+//isConsonant return true if letter consonant
+func isConsonant(char string) bool {
 	return !strings.Contains(vowel, char)
 }
