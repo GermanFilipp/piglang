@@ -19,17 +19,30 @@ var (
 
 // Encrypt translates one or more english words into the PigLatin equlivent
 func Encrypt(stdin string) string {
-	var encryptedWords []string
-	for _, word := range reg.FindAllString(stdin, -1) {
-		if onlyLattinReg.MatchString(word) {
-			word = encryptSingleWord(word)
+	str := reg.FindAllString(stdin, -1)
+	ch := make(chan map[int]string, len(str))
+	for i, word := range str {
+		if i == len(str) {
+			close(ch)
 		}
-		encryptedWords = append(encryptedWords, word)
+		go asyncEncrypt(word, ch, i)
 	}
-	return strings.Join(encryptedWords, "")
+	for range str {
+		for k, v := range <-ch {
+			str[k] = v
+		}
+	}
+	return strings.Join(str, "")
 }
 
 //// private
+
+func asyncEncrypt(w string, c chan<- map[int]string, index int) {
+	if onlyLattinReg.MatchString(w) {
+		w = encryptSingleWord(w)
+	}
+	c <- map[int]string{index: w}
+}
 
 // encryptSingleWord one english words into the PigLatin equlivent
 func encryptSingleWord(str string) string {
