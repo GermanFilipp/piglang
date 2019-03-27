@@ -3,6 +3,7 @@ package piglatin
 import (
 	"regexp"
 	"strings"
+	"sync"
 	"unicode"
 )
 
@@ -15,33 +16,28 @@ const (
 var (
 	reg           = regexp.MustCompile(`[A-Za-z']+|[^A-Za-z]`)
 	onlyLattinReg = regexp.MustCompile(`[A-Za-z']`)
+	wg            sync.WaitGroup
 )
 
 // Encrypt translates one or more english words into the PigLatin equlivent
 func Encrypt(stdin string) string {
 	str := reg.FindAllString(stdin, -1)
-	ch := make(chan map[int]string, len(str))
-	for i, word := range str {
-		if i == len(str) {
-			close(ch)
-		}
-		go asyncEncrypt(word, ch, i)
-	}
-	for range str {
-		for k, v := range <-ch {
-			str[k] = v
+	for i, v := range str {
+		if onlyLattinReg.MatchString(v) {
+			wg.Add(1)
+			p := &str[i]
+			go asyncEncrypt(p)
 		}
 	}
+	wg.Wait()
 	return strings.Join(str, "")
 }
 
 //// private
 
-func asyncEncrypt(w string, c chan<- map[int]string, index int) {
-	if onlyLattinReg.MatchString(w) {
-		w = encryptSingleWord(w)
-	}
-	c <- map[int]string{index: w}
+func asyncEncrypt(w *string) {
+	*w = encryptSingleWord(*w)
+	wg.Done()
 }
 
 // encryptSingleWord one english words into the PigLatin equlivent
